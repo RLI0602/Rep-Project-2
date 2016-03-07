@@ -1,3 +1,37 @@
 Reproducible Research Project 2: Exploring the U.S. NOAA Storm Database
 ==========================================
 by Xiaoyu Li 
+
+## Synonpsis 
+We will analyze the impact of different weather events on public health and economy using the storm database collected from the U.S. National Oceanic and Atmospheric Administration from 1950-2011. This report employs an exploratroy anlysis to find which types of events are the most harmful to population health and economy using the estimates of fatalities, injuries, property and crop damage. We find that tornado is the most harmful with respect to population health, while flood have the greatest economic consequences.    
+
+###Data Processing 
+First, we download the data file and unzip it.
+setwd("C:/Users/rli/Documents")
+url = "http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+download.file(url, dest = "storm.bz2")
+data = read.csv(bzfile("storm.bz2"))
+The required packages are plyr and ggplot2:
+library(ggplot2)
+library(plyr)
+
+
+###Impact on Population Health
+In this section, we check the number of injuries and fatalities that are caused by the severe weather events. We would like to get 5 most severe types of weather events.
+Injuries 
+injuries = ddply(data, .(EVTYPE), summarize, sum.injuries = sum(INJURIES,na.rm=TRUE))
+injuries = injuries[order(injuries$sum.injuries, decreasing = TRUE), ]
+head(injuries, 5)
+This can be represented in the below figure:
+ggplot(injuries[1:5, ], aes(EVTYPE, sum.injuries, fill = EVTYPE,alpha=0.5)) + geom_bar(stat = "identity") + 
+  xlab("Event Type") + ylab("Number of Injuries") + ggtitle("Injuries by Event type") + coord_flip()
+
+We see that tornado is the most harmful event with injuries of more than 91 thousands
+Fatalities
+fatalities = ddply(data, .(EVTYPE), summarize, sum = sum(FATALITIES))
+fatalities = fatalities[order(fatalities$sum, decreasing = TRUE), ]
+head(fatalities, 5)
+This can be represented in the below figure: 
+ggplot(fatalities[1:5, ], aes(EVTYPE, sum, fill=EVTYPE,alpha=0.3)) + geom_bar(stat = "identity") + 
+  xlab("Event Type") + ylab("Number of Fatalities") + ggtitle("Fatalities by Event type") + coord_flip()
+We see that it is tornado again with fatalities of more than 5 thousands followed by excessive heat causing close to 2 thousands fatalities.
