@@ -3,7 +3,7 @@ Reproducible Research Project 2: Exploring the U.S. NOAA Storm Database
 by Xiaoyu Li 
 
 ## Synonpsis 
-We will analyze the impact of different weather events on public health and economy using the storm database collected from the U.S. National Oceanic and Atmospheric Administration from 1950-2011. This report employs an exploratroy anlysis to find which types of events are the most harmful to population health and economy using the estimates of fatalities, injuries, property and crop damage. We find that tornado is the most harmful with respect to population health, while flood have the greatest economic consequences.    
+We will analyze the impact of different weather events on population health and economy using the storm database collected from the U.S. National Oceanic and Atmospheric Administration from 1950-2011. This report employs an exploratroy anlysis to find which types of events are the most harmful to population health and economy using the estimates of fatalities, injuries, property and crop damage. We find that tornado is the most harmful with respect to population health, while flood have the greatest economic consequences.    
 
 ###Data Processing 
 First, we download the data file and unzip it.
@@ -80,4 +80,4 @@ head(Damage.total,5)
 We see that it is flood is the most damaging weather in terms of total damage with  more than 150 billions followed by hurricane/typhoon 
 below we will use a plot to illustrate
 ## Result
-Based on the above exploratory analysis, we found that tornado is the most damaging event for public health while flood is the most damaging factor for economic loss. But if crop is the main concern, drought is the most damaging factor. 
+Based on the above exploratory analysis, we found that tornado is the most damaging event for population health while flood is the most damaging factor for economic loss. But if crop is the main concern, drought is the most damaging factor. 
