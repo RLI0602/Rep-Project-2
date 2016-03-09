@@ -82,13 +82,11 @@ data=as.data.frame(cbind(data,damage.property))
 ```
 We would like to get 5 most severe types of weather events
 ```{r}
-head(damage.property,5)
+Damage.property = ddply(data, .(EVTYPE), summarize, damage.property = sum(damage.property, na.rm = TRUE))
+Damage.property = Damage.property[order(Damage.property$damage.property, decreasing = T), ]
+head(Damage.property)
 ```
-This can be represented in the below figure:
-```{r}
-ggplot(damage.property[1:6, ], aes(EVTYPE, damage.property, fill = EVTYPE, alpha=0.5)) + geom_bar(stat = "identity") + 
-  xlab("Event Type") + ylab("Total damages") + ggtitle("Property damages by Event type") + coord_flip()
-```
+
 We see that Flood is the major damaging event for property damage with a total amount of more than 144 billion followed by hurricane/typhoon and tornado.
 
 Now we get the crop damage using the same methodology as property damage
@@ -121,3 +119,7 @@ We see that it is flood is the most damaging weather in terms of total damage wi
 
 ## Result
 Based on the above exploratory analysis, we found that tornado is the most damaging event for population health while flood is the most damaging factor for economic loss. But if crop is the main concern, drought is the most damaging factor. 
+
+
+
+
