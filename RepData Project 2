@@ -1,62 +1,98 @@
-Reproducible Research Project 2: Exploring the U.S. NOAA Storm Database
-==========================================
-by Xiaoyu Li 
+---
+title: "Reproducible Research Project 2: Exploring the U.S. NOAA Storm Database"
+author: "Xiaoyu Li"
+date: "March 9, 2016"
+output: html_document
+---
 
 ## Synonpsis 
-We will analyze the impact of different weather events on population health and economy using the storm database collected from the U.S. National Oceanic and Atmospheric Administration from 1950-2011. This report employs an exploratroy anlysis to find which types of events are the most harmful to population health and economy using the estimates of fatalities, injuries, property and crop damage. We find that tornado is the most harmful with respect to population health, while flood have the greatest economic consequences.    
+We will analyze the impact of different weather events on public  health and economy using the storm database collected from the U.S. National Oceanic and Atmospheric Administration from 1950-2011. This report employs an exploratroy anlysis to find which types of events are the most harmful to public health and economy using the estimates of injuries,fatalities, property and crop damage. We find that tornado is the most harmful with respect to population health, while flood have the greatest economic consequences. 
 
-###Data Processing 
-First, we download the data file and unzip it.
+##Data Processing 
+
+###First, we download the data file and unzip it.
+
+```{r}
 setwd("C:/Users/rli/Documents")
 url = "http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
 download.file(url, dest = "storm.bz2")
 data = read.csv(bzfile("storm.bz2"))
+```
 The required packages are plyr and ggplot2:
 library(ggplot2)
 library(plyr)
 
+##Impact on Population Health
 
-###Impact on Population Health
-In this section, we check the number of injuries and fatalities that are caused by the severe weather events. We would like to get 5 most severe types of weather events.
+###In this section, we check the number of injuries and fatalities that are caused by the severe weather events. We would like to get 5 most severe types of weather events.
+
 Injuries 
+```{r}
+library(plyr)
 injuries = ddply(data, .(EVTYPE), summarize, sum.injuries = sum(INJURIES,na.rm=TRUE))
 injuries = injuries[order(injuries$sum.injuries, decreasing = TRUE), ]
 head(injuries, 5)
+```
 This can be represented in the below figure:
+```{r}
+library(ggplot2)
 ggplot(injuries[1:5, ], aes(EVTYPE, sum.injuries, fill = EVTYPE,alpha=0.5)) + geom_bar(stat = "identity") + 
   xlab("Event Type") + ylab("Number of Injuries") + ggtitle("Injuries by Event type") + coord_flip()
+```
 
 We see that tornado is the most harmful event with injuries of more than 91 thousands
+
 Fatalities
+```{r}
 fatalities = ddply(data, .(EVTYPE), summarize, sum = sum(FATALITIES))
 fatalities = fatalities[order(fatalities$sum, decreasing = TRUE), ]
 head(fatalities, 5)
+```
 This can be represented in the below figure: 
+```{r}
 ggplot(fatalities[1:5, ], aes(EVTYPE, sum, fill=EVTYPE,alpha=0.3)) + geom_bar(stat = "identity") + 
   xlab("Event Type") + ylab("Number of Fatalities") + ggtitle("Fatalities by Event type") + coord_flip()
+```
+
 We see that it is tornado again with fatalities of more than 5 thousands followed by excessive heat causing close to 2 thousands fatalities.
 
-###Impact on economy 
-In this section, we check the number of property damage and crop damage that are caused by the severe weather events
+##Impact on Economy 
+
+###In this section, we check the number of property damage and crop damage that are caused by the severe weather events
+
+
 Property damage 
-first look at various exponents for PROPDMGEXP and then convert them to upper character, also we
-replace symbols other than character of numeric values to 0.
+```{r}
 unique(data$PROPDMGEXP)
 data$PROPDMGEXP <- toupper(data$PROPDMGEXP)
 data$PROPDMGEXP[data$PROPDMGEXP %in% c("", "+", "-", "?")] = "0"
+```
 we convert ‘B’ standing for billions to 9, ‘M’ standing for millions to 6, ‘K’ standing for thousands to 3 and ‘H’ for hundreds to 2.
+```{r}
 data$PROPDMGEXP[data$PROPDMGEXP %in% c("B")] = "9"
 data$PROPDMGEXP[data$PROPDMGEXP %in% c("M")] = "6"
 data$PROPDMGEXP[data$PROPDMGEXP %in% c("K")] = "3"
 data$PROPDMGEXP[data$PROPDMGEXP %in% c("H")] = "2"
+```
 Now we get the full property damage by converting PROPDMGEXP to numeric values and calculating total damage by multiplying the damage by the corresponding exponent.
+```{r}
 data$PROPDMGEXP <- 10^(as.numeric(data$PROPDMGEXP))
 damage.property = data$PROPDMG * data$PROPDMGEXP
 data=as.data.frame(cbind(data,damage.property))
+```
 We would like to get 5 most severe types of weather events
-head(Damage.property,5)
+```{r}
+head(damage.property,5)
+```
+This can be represented in the below figure:
+```{r}
+ggplot(damage.property[1:6, ], aes(EVTYPE, damage.property, fill = EVTYPE, alpha=0.5)) + geom_bar(stat = "identity") + 
+  xlab("Event Type") + ylab("Total damages") + ggtitle("Property damages by Event type") + coord_flip()
+```
 We see that Flood is the major damaging event for property damage with a total amount of more than 144 billion followed by hurricane/typhoon and tornado.
+
 Now we get the crop damage using the same methodology as property damage
+```{r}
 unique(data$CROPDMGEXP)
 data$CROPDMGEXP <- toupper(data$CROPDMGEXP)
 data$CROPDMGEXP[data$CROPDMGEXP %in% c("", "?")] = "0"
@@ -70,14 +106,18 @@ data=as.data.frame(cbind(data,damage.crop))
 Damage.crop = ddply(data, .(EVTYPE), summarize, damage.crop = sum(damage.crop, na.rm = TRUE))
 Damage.crop = Damage.crop[order(Damage.crop$damage.crop, decreasing = T), ]
 head(Damage.crop,5)
+```
 We see that drought is the major damaging event for crop causing more than 13 billion dollars followed by flood. 
-Now we add property damage and crop damage together to decide which event is the most damaging  
+
+Now we add property damage and crop damage together to decide which event is the most damaging 
+```{r}
 total.damage = damage.property + damage.crop
 data=as.data.frame(cbind(data,total.damage))
 Damage.total = ddply(data, .(EVTYPE), summarize, damage.total = sum(total.damage, na.rm = TRUE))
 Damage.total = Damage.total[order(Damage.total$damage.total, decreasing = T), ]
 head(Damage.total,5)
+```
 We see that it is flood is the most damaging weather in terms of total damage with  more than 150 billions followed by hurricane/typhoon 
-below we will use a plot to illustrate
+
 ## Result
 Based on the above exploratory analysis, we found that tornado is the most damaging event for population health while flood is the most damaging factor for economic loss. But if crop is the main concern, drought is the most damaging factor. 
